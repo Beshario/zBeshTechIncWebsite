@@ -4,7 +4,7 @@ Corporate website for zBesh Tech Inc. - a software company focused on building f
 
 ## About
 
-zBesh Tech designs tools that make invisible systems visible by transforming complex signals into clear feedback. The company's flagship product, [YesCoach](https://yescoach.fit), is a training intelligence platform that helps people understand how their body adapts over time.
+zBesh Tech designs tools that make invisible systems visible by transforming complex signals into clear feedback. The company's flagship product, [YesCoach](https://yescoach.fit), is a training intelligence platform that helps people understand how their body adapts over time...
 
 ## Tech Stack
 
