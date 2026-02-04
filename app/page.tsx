@@ -141,6 +141,7 @@ export default function Home() {
               <ArrowRight className="hidden lg:block h-8 w-8 text-accent" />
               <ArrowDown className="lg:hidden h-8 w-8 text-accent" />
               <motion.div
+                initial={{ opacity: 0.3 }}
                 animate={{
                   opacity: [0.3, 1, 0.3],
                 }}
@@ -173,6 +174,7 @@ export default function Home() {
               />
               <div className="relative w-40 h-40 rounded-lg border-2 border-accent bg-accent/5 flex items-center justify-center overflow-hidden group">
                 <motion.div
+                  initial={{ opacity: 0.1 }}
                   animate={{
                     opacity: [0.1, 0.3, 0.1],
                   }}
@@ -416,7 +418,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} zBesh Tech Inc. All rights reserved.
+            © 2026 zBesh Tech Inc. All rights reserved.
           </div>
         </div>
       </footer>
