@@ -23,7 +23,23 @@ export async function POST(request: Request) {
 
     // Resend email sending (requires RESEND_API_KEY environment variable)
     // If Resend is configured, use it; otherwise, log for manual follow-up
-    if (process.env.RESEND_API_KEY) {
+    if (!process.env.RESEND_API_KEY) {
+      console.error('[contact] RESEND_API_KEY is not configured. Message from', email, 'was NOT delivered.')
+      return NextResponse.json(
+        { error: 'Email delivery is not configured. Please email contact@zbesh.com directly.' },
+        { status: 503 }
+      )
+    }
+
+    if (!process.env.RESEND_FROM_EMAIL) {
+      console.error('[contact] RESEND_FROM_EMAIL is not configured.')
+      return NextResponse.json(
+        { error: 'Email sender is not configured. Please email contact@zbesh.com directly.' },
+        { status: 503 }
+      )
+    }
+
+    {
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -31,7 +47,7 @@ export async function POST(request: Request) {
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+          from: process.env.RESEND_FROM_EMAIL,
           to: 'contact@zbesh.com',
           reply_to: email,
           subject: `New Contact Form Submission from ${name}`,
@@ -47,18 +63,11 @@ export async function POST(request: Request) {
 
       if (!resendResponse.ok) {
         const error = await resendResponse.text()
-        console.error('[v0] Resend API error:', error)
+        console.error('[contact] Resend API error:', error)
         throw new Error('Failed to send email via Resend')
       }
 
-      console.log('[v0] Email sent successfully via Resend')
-    } else {
-      // Log the submission for manual follow-up if Resend is not configured
-      console.log('[v0] Contact form submission (Resend not configured):')
-      console.log(`Name: ${name}`)
-      console.log(`Email: ${email}`)
-      console.log(`Message: ${message}`)
-      console.log('Note: Add RESEND_API_KEY environment variable to enable automatic email sending')
+      console.log('[contact] Email sent successfully via Resend')
     }
 
     return NextResponse.json(
@@ -66,7 +75,7 @@ export async function POST(request: Request) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('[v0] Contact form error:', error)
+    console.error('[contact] Contact form error:', error)
     return NextResponse.json(
       { error: 'Failed to process request' },
       { status: 500 }

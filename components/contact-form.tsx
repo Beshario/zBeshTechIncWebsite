@@ -1,8 +1,6 @@
 'use client'
 
-import React from "react"
-
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -55,7 +53,7 @@ export function ContactForm() {
         animate={{ opacity: 1, scale: 1 }}
         className="text-center p-8 border border-accent/20 rounded-lg bg-accent/5"
       >
-        <h3 className="text-2xl font-semibold mb-3 text-accent">Message Sent!</h3>
+        <h3 className="font-heading text-2xl font-semibold mb-3 text-accent">Message Sent!</h3>
         <p className="text-muted-foreground mb-6">
           {"Thanks for reaching out. We'll get back to you soon."}
         </p>
@@ -83,7 +81,7 @@ export function ContactForm() {
             type="text"
             required
             placeholder="Your name"
-            className="bg-background"
+            className="bg-card"
           />
         </div>
         <div className="space-y-2">
@@ -96,7 +94,7 @@ export function ContactForm() {
             type="email"
             required
             placeholder="your@email.com"
-            className="bg-background"
+            className="bg-card"
           />
         </div>
       </div>
@@ -109,14 +107,14 @@ export function ContactForm() {
           name="message"
           required
           placeholder="Tell us about your project or idea..."
-          className="min-h-[150px] bg-background resize-none"
+          className="min-h-[150px] bg-card resize-none"
         />
       </div>
       {error && (
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm text-destructive"
+          className="text-sm text-warning"
         >
           {error}
         </motion.p>
@@ -125,7 +123,7 @@ export function ContactForm() {
         type="submit"
         size="lg"
         disabled={isSubmitting}
-        className="w-full md:w-auto font-medium"
+        className="w-full md:w-auto font-medium bg-accent text-accent-foreground hover:bg-accent/90"
       >
         {isSubmitting ? 'Sending...' : 'Send Message'}
       </Button>

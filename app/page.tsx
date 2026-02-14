@@ -1,93 +1,195 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { ArrowRight, ArrowDown } from "lucide-react"
-import Link from "next/link"
-import { motion, useScroll, useTransform, useSpring } from "framer-motion"
-import { useRef } from "react"
-import { ContactForm } from "@/components/contact-form"
+import { useState, useEffect } from 'react'
+import { useTheme } from 'next-themes'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { ArrowRight, Menu, X, Sun, Moon } from 'lucide-react'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const sectionTransition = {
+  duration: 0.5,
+  ease: [0.25, 0.1, 0.25, 1],
+}
+
+const navLinks = [
+  { label: 'Who We Are', href: '#who-we-are' },
+  { label: 'What We Do', href: '#what-we-do' },
+  { label: 'YesCoach', href: '#yescoach' },
+  { label: 'Contact', href: '#contact' },
+]
+
+const capabilities = [
+  {
+    title: 'Understand Their Own State',
+    description: 'Systems that can observe and report what is happening internally.',
+  },
+  {
+    title: 'Distinguish Signal from Noise',
+    description: 'Prioritize what matters and filter what does not.',
+  },
+  {
+    title: 'Translate Information into Decisions',
+    description: 'Convert structured signals into consistent, deterministic actions.',
+  },
+  {
+    title: 'Remain Predictable Under Complexity',
+    description: 'Behave reliably as scale and complexity increase.',
+  },
+]
+
+const yescoachFeatures = [
+  'Muscle heatmaps and adaptation signals',
+  'Weekly and monthly training feedback',
+  'Clear insightful trends',
+  'Designed for real-time feedback and introspection',
+]
 
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  })
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme()
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  })
-
-  const feedbackScale = useTransform(smoothProgress, [0.1, 0.25, 0.4], [1, 1.15, 1])
-  const feedbackOpacity = useTransform(smoothProgress, [0.1, 0.25, 0.4], [0.5, 1, 0.5])
-  const feedbackGlow = useTransform(smoothProgress, [0.1, 0.25, 0.4], [0, 20, 0])
+  useEffect(() => { setMounted(true) }, [])
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background">
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-sm border-b border-border"
+    <div className="min-h-screen bg-background">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:border focus:border-border focus:rounded"
       >
+        Skip to content
+      </a>
+
+      {/* ── Navigation ── */}
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-16">
-            <div className="font-mono text-lg font-semibold">zBesh Tech</div>
+            <Link href="/" className="font-mono text-lg font-semibold tracking-tight text-foreground">
+              zBesh Tech
+            </Link>
+
+            {/* Desktop links */}
             <div className="hidden md:flex items-center gap-8">
-              <Link href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="#product" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Product
-              </Link>
- 
-              <Link href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Contact
-              </Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {mounted && (
+                <button
+                  type="button"
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </button>
+              )}
             </div>
+
+            {/* Mobile hamburger */}
+            <button
+              type="button"
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
-      </motion.nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-24 lg:pt-40 lg:pb-32 px-6 lg:px-12">
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="md:hidden border-t border-border bg-background/95 backdrop-blur-md overflow-hidden"
+            >
+              <div className="px-6 py-4 flex flex-col gap-4">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {mounted && (
+                  <button
+                    type="button"
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      <main id="main-content">
+      {/* ── Hero ── */}
+      <section className="pt-32 pb-20 lg:pt-44 lg:pb-32 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="text-sm font-mono text-accent mb-6 tracking-wide"
             >
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-                className="text-sm font-mono text-muted-foreground mb-6"
-              >
-                {'Modeling systems. Synthesizing signals. Enabling decisions.'}
-              </motion.p>
-              <h1 className="text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-balance">
-                Making Invisible Systems <span className="text-accent">Visible</span>
-              </h1>
-              <p className="text-xl text-muted-foreground mb-10 leading-relaxed text-pretty max-w-2xl">
-                {'Building from first principles.'}
-              </p>
-            </motion.div>
+              Designing feedback-driven intelligent systems.
+            </motion.p>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+              className="font-heading text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 text-balance text-foreground"
+            >
+              We structure how complex software and data-driven platforms observe state, process signals, and guide decisions.
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+              className="text-lg lg:text-xl text-muted-foreground mb-10 leading-relaxed text-pretty max-w-2xl"
+            >
+              From industrial environments to modern applications, we bring systems discipline to intelligent software.
+            </motion.p>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
+              transition={{ duration: 0.5, delay: 0.3, ease: 'easeOut' }}
               className="flex flex-col sm:flex-row gap-4"
             >
               <Button size="lg" className="font-medium" asChild>
                 <Link href="#contact">Collaborate with Us</Link>
               </Button>
               <Button size="lg" variant="outline" className="font-medium bg-transparent" asChild>
-                <Link href="#product">
+                <Link href="#yescoach">
                   Explore YesCoach
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -97,328 +199,280 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Signal Flow Diagram - Animated on Scroll */}
-      <section className="py-16 lg:py-24 px-6 lg:px-12">
+      {/* ── Who We Are ── */}
+      <section id="who-we-are" className="py-20 lg:py-28 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: false, amount: 0.5 }}
-              className="w-32 h-32 rounded-lg border-2 border-border bg-card flex items-center justify-center"
-            >
-              <span className="font-mono text-sm text-muted-foreground">Input</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              viewport={{ once: false }}
-            >
-              <ArrowRight className="hidden lg:block h-8 w-8 text-muted-foreground" />
-              <ArrowDown className="lg:hidden h-8 w-8 text-muted-foreground" />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: -50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: false, amount: 0.5 }}
-              className="w-32 h-32 rounded-lg border-2 border-border bg-card flex items-center justify-center"
-            >
-              <span className="font-mono text-sm text-muted-foreground">System</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 0.4, delay: 0.5 }}
-              viewport={{ once: false }}
-              className="relative"
-            >
-              <ArrowRight className="hidden lg:block h-8 w-8 text-accent" />
-              <ArrowDown className="lg:hidden h-8 w-8 text-accent" />
-              <motion.div
-                initial={{ opacity: 0.3 }}
-                animate={{
-                  opacity: [0.3, 1, 0.3],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 blur-md"
-              >
-                <ArrowRight className="hidden lg:block h-8 w-8 text-accent" />
-                <ArrowDown className="lg:hidden h-8 w-8 text-accent" />
-              </motion.div>
-            </motion.div>
-
-            {/* Feedback Node - The Star of the Show */}
-            <motion.div
-              style={{
-                scale: feedbackScale,
-                opacity: feedbackOpacity,
-              }}
-              className="relative"
-            >
-              <motion.div
-                style={{
-                  filter: useTransform(feedbackGlow, (v) => `blur(${v}px)`),
-                  opacity: useTransform(feedbackGlow, (v) => v / 30)
-                }}
-                className="absolute inset-0 -m-4 bg-accent rounded-lg"
-              />
-              <div className="relative w-40 h-40 rounded-lg border-2 border-accent bg-accent/5 flex items-center justify-center overflow-hidden group">
-                <motion.div
-                  initial={{ opacity: 0.1 }}
-                  animate={{
-                    opacity: [0.1, 0.3, 0.1],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="absolute inset-0 bg-accent"
-                />
-                <span className="font-mono text-base text-accent relative z-10 font-bold">Signal</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 0.4, delay: 0.7 }}
-              viewport={{ once: false }}
-            >
-              <ArrowRight className="hidden lg:block h-8 w-8 text-muted-foreground" />
-              <ArrowDown className="lg:hidden h-8 w-8 text-muted-foreground" />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              viewport={{ once: false, amount: 0.5 }}
-              className="w-32 h-32 rounded-lg border-2 border-border bg-card flex items-center justify-center"
-            >
-              <span className="font-mono text-sm text-muted-foreground">Decision</span>
-            </motion.div>
-          </div>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={sectionTransition}
+            viewport={{ once: true, amount: 0.3 }}
+            className="max-w-3xl border-l-2 border-accent pl-8 lg:pl-12"
+          >
+            <h2 className="font-heading text-3xl lg:text-5xl font-bold mb-8 text-foreground">
+              Who We Are
+            </h2>
+            <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+              <p className="text-foreground font-medium text-xl">
+                zBesh Tech is a software and systems design studio.
+              </p>
+              <p>
+                We focus on how intelligent systems sense, interpret, and respond.
+              </p>
+              <p>
+                As systems grow in complexity — especially with AI and automation — behavior becomes harder to predict.
+              </p>
+              <p className="text-foreground">
+                We design the feedback layer that keeps systems clear, structured, and stable.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* About Section */}
-      <motion.section
-        id="about"
-        className="py-24 lg:py-32 px-6 lg:px-12 bg-muted/30"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: false, amount: 0.2 }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-3xl">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: false }}
-              className="text-4xl lg:text-5xl font-bold mb-8 text-balance"
-            >
-              About zBesh Tech
-            </motion.h2>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: false }}
-              className="space-y-6"
-            >
-              <p className="text-lg text-foreground leading-relaxed">
-                {'zBesh Tech Inc. is a software-focused company that models complex real-world systems from first principles and makes their behavior understandable.'}
-              </p>
-              <p className="text-lg text-foreground leading-relaxed">
-                {'Our mission is to model real-world systems and make their behavior clear and actionable.'}
-              </p>
-            
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Product Spotlight - YesCoach */}
-      <section id="product" className="py-24 lg:py-32 px-6 lg:px-12">
+      {/* ── What We Do ── */}
+      <section id="what-we-do" className="py-20 lg:py-28 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: false }}
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={sectionTransition}
+            viewport={{ once: true, amount: 0.2 }}
             className="mb-12"
           >
-            <div className="inline-block px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-6">
-              <span className="text-sm font-mono text-accent">Product Spotlight</span>
-            </div>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">YesCoach — A Body Feedback System</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
-              {'Training inputs are treated as signals acting on a dynamic biological system; adaptation is synthesized into clear, interpretable outputs.'}
+            <h2 className="font-heading text-3xl lg:text-5xl font-bold mb-6 text-foreground">
+              What We Do
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed text-pretty">
+              We design the internal structure that allows systems to:
             </p>
           </motion.div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mb-12">
+            {capabilities.map((cap, i) => (
+              <motion.div
+                key={cap.title}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                transition={{ ...sectionTransition, delay: i * 0.1 }}
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                <Card className="h-full border-border hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_-4px_rgba(var(--accent-glow),0.15)]">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1.5 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-1">{cap.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{cap.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
 
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={sectionTransition}
+            viewport={{ once: true }}
+            className="text-lg text-muted-foreground max-w-3xl leading-relaxed"
+          >
+            This is feedback architecture applied to{' '}
+            <span className="text-foreground font-medium">intelligent systems.</span>
+          </motion.p>
+        </div>
+      </section>
 
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+      {/* ── Where We Apply It ── */}
+      <section id="where-we-apply" className="py-20 lg:py-28 px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <motion.h2
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={sectionTransition}
+            viewport={{ once: true }}
+            className="font-heading text-3xl lg:text-5xl font-bold mb-12 text-foreground"
+          >
+            Where We Apply It
+          </motion.h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: false }}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              transition={{ ...sectionTransition, delay: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
             >
-              <Card className="p-8 h-full border-l-4 border-l-accent">
-                <h3 className="text-lg font-semibold mb-4">Key capabilities:</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <motion.div
-                      whileInView={{ scale: [0, 1.2, 1] }}
-                      transition={{ duration: 0.4 }}
-                      viewport={{ once: false }}
-                      className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0"
-                    />
-                    <span className="text-muted-foreground leading-relaxed">Muscle heatmaps and adaptation signals</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <motion.div
-                      whileInView={{ scale: [0, 1.2, 1] }}
-                      transition={{ duration: 0.4, delay: 0.1 }}
-                      viewport={{ once: false }}
-                      className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0"
-                    />
-                    <span className="text-muted-foreground leading-relaxed">Weekly and monthly training feedback</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <motion.div
-                      whileInView={{ scale: [0, 1.2, 1] }}
-                      transition={{ duration: 0.4, delay: 0.2 }}
-                      viewport={{ once: false }}
-                      className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0"
-                    />
-                    <span className="text-muted-foreground leading-relaxed">Clear insightful trends</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <motion.div
-                      whileInView={{ scale: [0, 1.2, 1] }}
-                      transition={{ duration: 0.4, delay: 0.3 }}
-                      viewport={{ once: false }}
-                      className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0"
-                    />
-                    <span className="text-muted-foreground leading-relaxed">Designed for real-time feedback and introspection.</span>
-                  </li>
-                </ul>
+              <Card className="h-full border-border hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_-4px_rgba(var(--accent-glow),0.15)]">
+                <CardContent className="pt-6">
+                  <h3 className="font-heading text-xl font-semibold text-foreground mb-4">
+                    Intelligent &amp; Software Systems
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Designing structured feedback layers for AI-enabled and data-driven platforms.
+                  </p>
+                </CardContent>
               </Card>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: false }}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              transition={{ ...sectionTransition, delay: 0.1 }}
+              viewport={{ once: true, amount: 0.2 }}
             >
-              <Card className="p-8 h-full bg-muted/50">
-                <h3 className="text-lg font-semibold mb-4">Why it matters:</h3>
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  {'When people can see what\'s happening inside their body, they make better decisions—faster, and with confidence.'}
-                </p>
-                <Button variant="outline" className="bg-transparent" asChild>
-                  <a href="https://yescoach.fit" target="_blank" rel="noopener noreferrer">
-                    Visit YesCoach →
-                  </a>
-                </Button>
+              <Card className="h-full border-border hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_-4px_rgba(var(--accent-glow),0.15)]">
+                <CardContent className="pt-6">
+                  <h3 className="font-heading text-xl font-semibold text-foreground mb-4">
+                    Industrial Automation &amp; Machine Vision
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Applying disciplined sensing and control principles in production environments.
+                  </p>
+                </CardContent>
               </Card>
             </motion.div>
           </div>
         </div>
       </section>
 
-
-
-      {/* Contact Section */}
-      <section id="contact" className="py-24 lg:py-32 px-6 lg:px-12">
+      {/* ── YesCoach Spotlight ── */}
+      <section id="yescoach" className="py-20 lg:py-28 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: false }}
-            className="max-w-4xl mx-auto"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={sectionTransition}
+            viewport={{ once: true, amount: 0.2 }}
           >
-            <div className="text-center mb-12">
-              <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-balance">{"Work With zBesh Tech"}</h2>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                {'Interested in a conversation about how we can collaborate to '}
-                <br />
-                {"model your system and make it visible on screen?"}
-              </p>
+            <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/20 rounded-full mb-6">
+              <span className="text-sm font-mono text-accent">Applied Example</span>
+            </span>
+
+            <h2 className="font-heading text-3xl lg:text-5xl font-bold mb-6 text-foreground">
+              YesCoach
+            </h2>
+
+            <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed mb-4 text-pretty">
+              A performance platform built using the same feedback-driven design principles. Training is input. Adaptation is signal. State becomes visible.
+            </p>
+
+            <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed mb-10">
+              A demonstration that structured feedback applies across domains — from machines to people.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={{ ...sectionTransition, delay: 0.15 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="mb-10"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              {yescoachFeatures.map((feature) => (
+                <div key={feature} className="flex items-start gap-3">
+                  <span className="mt-1.5 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
+                  <span className="text-muted-foreground text-sm leading-relaxed">{feature}</span>
+                </div>
+              ))}
             </div>
+          </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={{ ...sectionTransition, delay: 0.25 }}
+            viewport={{ once: true }}
+          >
+            <Button variant="outline" className="bg-transparent font-medium" asChild>
+              <a href="https://yescoach.fit" target="_blank" rel="noopener noreferrer">
+                Visit YesCoach
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Contact ── */}
+      <section id="contact" className="py-20 lg:py-28 px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            transition={sectionTransition}
+            viewport={{ once: true, amount: 0.2 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <h2 className="font-heading text-3xl lg:text-5xl font-bold mb-6 text-balance text-foreground">
+              Work With zBesh Tech
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed text-pretty mb-10">
+              Interested in a conversation about how we can collaborate to model your system and make it visible on screen?
+            </p>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: false }}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              transition={{ ...sectionTransition, delay: 0.15 }}
+              viewport={{ once: true }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <ContactForm />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: false }}
-              className="mt-12 text-center"
-            >
-              <p className="text-sm text-muted-foreground mb-4">
-                Or explore our product
-              </p>
-              <Button variant="outline" className="bg-transparent" asChild>
+              <Button size="lg" className="font-medium" asChild>
+                <a href="mailto:contact@zbesh.com">
+                  Email Us
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+              <Button size="lg" variant="outline" className="font-medium bg-transparent" asChild>
                 <a href="https://yescoach.fit" target="_blank" rel="noopener noreferrer">
-                  Visit YesCoach →
+                  Explore YesCoach
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
             </motion.div>
           </motion.div>
         </div>
       </section>
+      </main>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <footer className="border-t border-border py-12 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <div className="font-mono text-lg font-semibold mb-2">zBesh Tech Inc.</div>
-              <p className="text-sm text-muted-foreground">Modeling real-world systems from first principles.</p>
+              <div className="font-mono text-lg font-semibold mb-2 text-foreground">zBesh Tech Inc.</div>
+              <p className="text-sm text-muted-foreground">Intelligent systems design.</p>
             </div>
             <div className="flex gap-8">
-              <Link href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="#product" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Product
-              </Link>
-              <Link href="#collaborate" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Collaborate
-              </Link>
-              <Link href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Contact
-              </Link>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            © 2026 zBesh Tech Inc. All rights reserved.
+            &copy; 2026 zBesh Tech Inc. All rights reserved.
           </div>
         </div>
       </footer>
