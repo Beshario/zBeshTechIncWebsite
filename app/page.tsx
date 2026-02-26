@@ -176,7 +176,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
               className="text-lg lg:text-xl text-muted-foreground mb-10 leading-relaxed text-pretty max-w-2xl"
             >
-              From industrial environments to modern applications, we bring systems discipline to intelligent software.
+              Engineering-grade systems discipline for AI-powered software and data-driven platforms.
             </motion.p>
 
             <motion.div
@@ -221,7 +221,7 @@ export default function Home() {
                 We focus on how intelligent systems sense, interpret, and respond.
               </p>
               <p>
-                As systems grow in complexity — especially with AI and automation — behavior becomes harder to predict.
+                As systems grow in complexity — especially in the age of AI — behavior becomes harder to predict.
               </p>
               <p className="text-foreground">
                 We design the feedback layer that keeps systems clear, structured, and stable.
@@ -333,10 +333,10 @@ export default function Home() {
               <Card className="h-full border-border hover:border-accent/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_-4px_rgba(var(--accent-glow),0.15)]">
                 <CardContent className="pt-6">
                   <h3 className="font-heading text-xl font-semibold text-foreground mb-4">
-                    Industrial Automation &amp; Machine Vision
+                    Human Performance &amp; Adaptive Systems
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Applying disciplined sensing and control principles in production environments.
+                    Applying feedback-driven design to health, training, and the signals that guide human adaptation.
                   </p>
                 </CardContent>
               </Card>
@@ -368,7 +368,7 @@ export default function Home() {
             </p>
 
             <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed mb-10">
-              A demonstration that structured feedback applies across domains — from machines to people.
+              A demonstration that structured feedback applies wherever signal meets behavior.
             </p>
           </motion.div>
 
